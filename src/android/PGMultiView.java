@@ -33,8 +33,19 @@ public class PGMultiView extends CordovaPlugin {
 
     public boolean execute(String action, CordovaArgs args, final CallbackContext callbackContext) throws JSONException {
         this.callbackContext = callbackContext;
-
-        if (action.equals("loadView")) {
+       if(action.equals("getMessage")) {
+        PGMultiViewActivity act = (PGMultiViewActivity) this.cordova.getActivity();
+            String message = act.getMessage();
+            if(message!=null) {
+                callbackContext.success(message);
+            }
+            else {
+                LOG.d("no previously stored message", "calling toast");
+                this.callbackContext.error("no message");
+                burntToast();
+            }
+         }
+        else if (action.equals("loadView")) {
             final String url = args.getString(0);
             final String message = args.getString(1);
             startCordovaActivity(url, message);
@@ -48,6 +59,14 @@ public class PGMultiView extends CordovaPlugin {
             callbackContext.success(message);
         }
         return true;
+    }
+        private void burntToast() {
+        Context context=this.cordova.getActivity().getApplicationContext();
+        CharSequence text ="no previously stored message";
+        int duration = Toast.LENGTH_LONG;
+        Toast toast = Toast.makeText(context,text, duration);
+       toast.setGravity(Gravity.TOP|Gravity.LEFT, 50, 50);
+       toast.show();
     }
 
     //Launch child activity(PGMultiViewActivity.java), send start url and message in an intent
